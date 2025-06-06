@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice de Style - Générateur IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+        window.transformers = { pipeline };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.1); }
+        .story-text { line-height: 1.8; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">🎭 Exercice de Style</h1>
+            <p class="text-gray-200 text-lg">Générateur d'histoires IA par <strong>Luc Bizeul</strong></p>
+            <a href="https://www.linkedin.com/in/luc-bizeul/" target="_blank" class="text-blue-200 hover:text-blue-100 transition-colors">
+                LinkedIn Profile 🔗
+            </a>
+            <div class="mt-2">
+                <span class="bg-green-500/30 px-3 py-1 rounded-full text-sm text-green-200">
+                    🧠 IA intégrée dans le navigateur
+                </span>
+            </div>
+        </div>
+
+        <!-- AI Status -->
+        <div id="aiStatus" class="max-w-4xl mx-auto mb-6">
+            <div id="loadingAI" class="glass-effect rounded-lg p-4 border border-white/20 text-center">
+                <div class="pulse text-yellow-300">⚙️ Chargement du modèle IA...</div>
+                <div class="text-sm text-gray-300 mt-2">Première utilisation : téléchargement en cours (~50MB)</div>
+                <div class="w-full bg-gray-600 rounded-full h-2 mt-3">
+                    <div id="progressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+            <div id="aiReady" class="hidden glass-effect rounded-lg p-4 border border-green-500/30 text-center">
+                <div class="text-green-300">✅ IA prête à générer des histoires !</div>
+            </div>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="max-w-4xl mx-auto glass-effect rounded-2xl p-8 border border-white/20">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Controls -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-semibold text-white mb-4">🎨 Configuration</h2>
+                    
+                    <!-- Style Selection -->
+                    <div>
+                        <label class="block text-white font-medium mb-2">Style littéraire :</label>
+                        <select id="styleSelect" class="w-full p-3 rounded-lg bg-white/10 text-white border border-white/30 focus:border-blue-300 focus:outline-none">
+                            <option value="romantique">🌹 Romantique</option>
+                            <option value="realiste">📖 Réaliste</option>
+                            <option value="surealiste">🌀 Surréaliste</option>
+                            <option value="noir">🕴️ Polar/Noir</option>
+                            <option value="fantastique">✨ Fantastique</option>
+                            <option value="science-fiction">🚀 Science-Fiction</option>
+                            <option value="humoristique">😄 Humoristique</option>
+                            <option value="tragique">😢 Tragique</option>
+                            <option value="epique">⚔️ Épique</option>
+                            <option value="minimaliste">▫️ Minimaliste</option>
+                        </select>
+                    </div>
+
+                    <!-- Genre Selection -->
+                    <div>
+                        <label class="block text-white font-medium mb-2">Genre narratif :</label>
+                        <select id="genreSelect" class="w-full p-3 rounded-lg bg-white/10 text-white border border-white/30 focus:border-blue-300 focus:outline-none">
+                            <option value="nouvelle">📚 Nouvelle</option>
+                            <option value="conte">🧚 Conte</option>
+                            <option value="journal">📔 Journal intime</option>
+                            <option value="rapport">📋 Rapport officiel</option>
+                            <option value="lettre">✉️ Lettre</option>
+                            <option value="dialogue">💬 Dialogue</option>
+                            <option value="monologue">🗣️ Monologue intérieur</option>
+                            <option value="poeme">🎭 Poème en prose</option>
+                        </select>
+                    </div>
+
+                    <!-- Narrator Profession -->
+                    <div>
+                        <label class="block text-white font-medium mb-2">Métier du narrateur :</label>
+                        <input type="text" id="narratorJob" placeholder="ex: journaliste, médecin, étudiant..." 
+                               class="w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-300 border border-white/30 focus:border-blue-300 focus:outline-none">
+                    </div>
+
+                    <!-- Creativity Level -->
+                    <div>
+                        <label class="block text-white font-medium mb-2">Niveau de créativité :</label>
+                        <select id="creativity" class="w-full p-3 rounded-lg bg-white/10 text-white border border-white/30 focus:border-blue-300 focus:outline-none">
+                            <option value="0.3">🎯 Précis et cohérent</option>
+                            <option value="0.7" selected>🎨 Équilibré</option>
+                            <option value="1.0">🌟 Très créatif</option>
+                        </select>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button id="generateBtn" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <span id="btnText">⏳ Chargement de l'IA...</span>
+                        <span id="btnLoader" class="hidden">🎯 Génération en cours...</span>
+                    </button>
+
+                    <!-- Info -->
+                    <div class="text-xs text-gray-300 bg-blue-500/10 p-3 rounded-lg border border-blue-500/20">
+                        💡 <strong>100% local :</strong> Aucune donnée n'est envoyée vers des serveurs externes. L'IA fonctionne entièrement dans votre navigateur !
+                    </div>
+                </div>
+
+                <!-- Story Display -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-white mb-4">📖 Histoire générée</h2>
+                    <div id="storyContainer" class="bg-white/10 rounded-lg p-6 min-h-96 border border-white/20">
+                        <div id="storyPlaceholder" class="text-gray-300 text-center py-12">
+                            <div class="text-6xl mb-4">📝</div>
+                            <p>L'IA se prépare... Patience, ça va être magique !</p>
+                        </div>
+                        <div id="storyText" class="hidden text-white story-text"></div>
+                        <div id="errorMessage" class="hidden text-red-300 p-4 bg-red-500/20 rounded-lg"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-gray-200">
+            <p>Inspiré par "Exercices de style" de Raymond Queneau</p>
+            <p class="text-sm mt-2">Propulsé par Transformers.js & Hugging Face 🤗</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let storyData = null;
+        let generator = null;
+        let isAIReady = false;
+
+        // Elements
+        const generateBtn = document.getElementById('generateBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoader = document.getElementById('btnLoader');
+        const storyPlaceholder = document.getElementById('storyPlaceholder');
+        const storyText = document.getElementById('storyText');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingAI = document.getElementById('loadingAI');
+        const aiReady = document.getElementById('aiReady');
+        const progressBar = document.getElementById('progressBar');
+
+        // Default story data (embedded as fallback)
+        const defaultStoryData = {
+            "@context": "https://schema.org/",
+            "@graph": [
+                {
+                    "@type": "Person",
+                    "@id": "#author",
+                    "name": "Luc Bizeul",
+                    "role": "Auteur",
+                    "url": "https://www.linkedin.com/in/luc-bizeul/"
+                },
+                {
+                    "@type": "myvocab:AgentInstruction",
+                    "myvocab:instructionContent": "Demander un style et un genre pour l'histoire"
+                },
+                {
+                    "@type": "myvocab:AgentInstruction",
+                    "myvocab:instructionContent": "Tenir compte de tous les paramètres de l'histoire"
+                },
+                {
+                    "@type": "myvocab:AgentInstruction",
+                    "myvocab:instructionContent": "n'utilise pas les identifiants pour nommer les personnages"
+                },
+                {
+                    "@type": "myvocab:AgentInstruction",
+                    "myvocab:instructionContent": "demande le métier du narrateur"
+                },
+                {
+                    "@type": "Person",
+                    "@id": "#youth_man",
+                    "ageRange": "18-25",
+                    "neck": {
+                        "@type": "BodyPart",
+                        "height": "long",
+                        "name": "cou"
+                    },
+                    "wearing": {
+                        "@type": "WearAction",
+                        "object": {
+                            "@type": "Clothing",
+                            "name": "chapeau",
+                            "hasDecoration": "tresse",
+                            "doesNotHaveDecoration": "ruban"
+                        }
+                    },
+                    "gender": "Male",
+                    "location": {
+                        "@id": "#Autobus"
+                    }
+                },
+                {
+                    "@type": "Bus",
+                    "@id": "Autobus"
+                },
+                {
+                    "@type": "Conversation",
+                    "@id": "#conversation1",
+                    "emotionalTone": "vif",
+                    "speaker": [
+                        { "@id": "#youth_man" },
+                        { "@id": "#other_traveller" }
+                    ]
+                },
+                {
+                    "@type": "Seat",
+                    "@id": "#free_seat",
+                    "name": "Siège libre"
+                },
+                {
+                    "@type": "Person",
+                    "@id": "#friend",
+                    "name": "Ami"
+                },
+                {
+                    "@type": "Button",
+                    "name": "bouton supérieur"
+                }
+            ]
+        };
+
+        // Load story data from JSON with fallback
+        fetch('./ExerciceDeStyle.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                storyData = data;
+                console.log('📖 Histoire chargée depuis le fichier JSON:', storyData);
+            })
+            .catch(error => {
+                console.log('⚠️ Fichier JSON non accessible, utilisation des données intégrées');
+                console.log('💡 Astuce: Pour utiliser le fichier externe, servez les fichiers via un serveur web');
+                storyData = defaultStoryData;
+                console.log('📖 Histoire chargée depuis les données par défaut:', storyData);
+            });
+
+        // Initialize AI Model
+        async function initializeAI() {
+            try {
+                console.log('🚀 Initialisation du modèle IA...');
+                
+                // Simulate progress for UX
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90;
+                    progressBar.style.width = progress + '%';
+                }, 500);
+
+                // Initialize the text generation pipeline with better error handling
+                try {
+                    generator = await window.transformers.pipeline(
+                        'text-generation',
+                        'Xenova/distilgpt2',
+                        {
+                            progress_callback: (data) => {
+                                if (data.status === 'downloading') {
+                                    const percent = Math.round((data.loaded / data.total) * 100);
+                                    progressBar.style.width = percent + '%';
+                                }
+                            }
+                        }
+                    );
+                } catch (modelError) {
+                    console.log('🔄 Modèle principal non disponible, utilisation du fallback...');
+                    // Si le modèle français ne marche pas, on utilise un modèle plus petit
+                    generator = null;
+                    throw new Error('Modèle IA non disponible - mode template activé');
+                }
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
+                // Show success
+                setTimeout(() => {
+                    loadingAI.classList.add('hidden');
+                    aiReady.classList.remove('hidden');
+                    generateBtn.disabled = false;
+                    btnText.textContent = '🎯 Générer l\'histoire';
+                    isAIReady = true;
+                    
+                    storyPlaceholder.innerHTML = `
+                        <div class="text-6xl mb-4">🎭</div>
+                        <p>Sélectionnez vos paramètres et générez votre histoire !</p>
+                    `;
+                    
+                    console.log('✅ IA prête !');
+                }, 1000);
+
+            } catch (error) {
+                console.log('🎭 Activation du mode template intelligent...');
+                
+                // Fallback to template-based generation (no error shown to user)
+                generator = null;
+                isAIReady = true;
+                generateBtn.disabled = false;
+                btnText.textContent = '🎯 Générer l\'histoire';
+                loadingAI.classList.add('hidden');
+                
+                // Show success message for template mode
+                aiReady.innerHTML = '<div class="text-green-300">✅ Générateur d\'histoires prêt ! (Mode Templates)</div>';
+                aiReady.classList.remove('hidden');
+                
+                storyPlaceholder.innerHTML = `
+                    <div class="text-6xl mb-4">🎭</div>
+                    <p>Sélectionnez vos paramètres et générez votre histoire !</p>
+                `;
+                
+                console.log('✅ Mode template activé !');
+            }
+        }
+
+        // Generate story function
+        async function generateStory() {
+            const style = document.getElementById('styleSelect').value;
+            const genre = document.getElementById('genreSelect').value;
+            const narratorJob = document.getElementById('narratorJob').value || 'observateur anonyme';
+            const creativity = parseFloat(document.getElementById('creativity').value);
+
+            if (!isAIReady) {
+                showError('⚠️ L\'IA n\'est pas encore prête. Patientez...');
+                return;
+            }
+
+            if (!storyData) {
+                showError('❌ Les données de l\'histoire ne sont pas encore chargées');
+                return;
+            }
+
+            // Show loading
+            setLoading(true);
+            hideError();
+
+            try {
+                let generatedStory;
+
+                if (generator) {
+                    // AI-powered generation
+                    const prompt = buildPrompt(style, genre, narratorJob);
+                    console.log('🚀 Génération avec IA...');
+
+                    const result = await generator(prompt, {
+                        max_new_tokens: 200,
+                        temperature: creativity,
+                        do_sample: true,
+                        repetition_penalty: 1.1
+                    });
+
+                    generatedStory = result[0].generated_text.replace(prompt, '').trim();
+                } else {
+                    // Fallback template-based generation
+                    generatedStory = generateTemplateStory(style, genre, narratorJob);
+                }
+
+                displayStory(generatedStory, style, genre);
+
+            } catch (error) {
+                console.error('❌ Erreur:', error);
+                showError(`❌ Erreur lors de la génération: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Build prompt for AI based on JSON data
+        function buildPrompt(style, genre, narratorJob) {
+            if (!storyData) {
+                return `Raconte une histoire simple dans le style ${style}.`;
+            }
+
+            const graph = storyData['@graph'];
+            
+            // Extract instructions from JSON
+            const instructions = graph.filter(item => item['@type'] === 'myvocab:AgentInstruction');
+            
+            // Extract character details
+            const youthMan = graph.find(item => item['@id'] === '#youth_man');
+            const narrator = graph.find(item => item['@id'] === '#Narrator');
+            const friend = graph.find(item => item['@id'] === '#friend');
+            const otherTraveller = graph.find(item => item['@id'] === '#other_traveller');
+            
+            // Extract locations and objects
+            const bus = graph.find(item => item['@type'] === 'Bus');
+            const seat = graph.find(item => item['@type'] === 'Seat');
+            const button = graph.find(item => item['@type'] === 'Button');
+            
+            // Extract actions
+            const conversation1 = graph.find(item => item['@id'] === '#conversation1');
+            const sitAction = graph.find(item => item['@type'] === 'SitAction');
+            const wearAction = graph.find(item => item['@id'] === '#wear_coat');
+            const fastenAction = graph.find(item => item['@type'] === 'FastenAction');
+            
+            const styleDescriptions = {
+                'romantique': 'passionné et émotionnel, avec des descriptions poétiques',
+                'realiste': 'objectif et détaillé, ancré dans la réalité quotidienne',
+                'surealiste': 'onirique et étrange, mélangeant rêve et réalité',
+                'noir': 'sombre et mystérieux, avec une atmosphère tendue',
+                'fantastique': 'merveilleux et magique, où l\'impossible devient possible',
+                'science-fiction': 'futuriste et technologique, explorant les possibilités de demain',
+                'humoristique': 'léger et amusant, avec des situations comiques',
+                'tragique': 'mélancolique et dramatique, explorant la condition humaine',
+                'epique': 'grandiose et héroïque, avec des enjeux importants',
+                'minimaliste': 'épuré et concis, allant à l\'essentiel'
+            };
+
+            let prompt = `En tant que ${narratorJob}, raconte cette histoire dans le style ${style} (${styleDescriptions[style]}) et le genre ${genre}.\n\n`;
+            
+            // Add specific instructions from JSON
+            if (instructions.length > 0) {
+                prompt += `Instructions importantes à respecter :\n`;
+                instructions.forEach(instruction => {
+                    prompt += `- ${instruction['myvocab:instructionContent']}\n`;
+                });
+                prompt += `\n`;
+            }
+            
+            // Build detailed character and scene description from JSON
+            prompt += `Éléments précis de l'histoire :\n`;
+            
+            if (youthMan) {
+                prompt += `- Personnage principal : jeune homme de ${youthMan.ageRange} ans`;
+                if (youthMan.neck) {
+                    prompt += `, avec un ${youthMan.neck.name} ${youthMan.neck.height}`;
+                }
+                if (youthMan.wearing && youthMan.wearing.object) {
+                    const hat = youthMan.wearing.object;
+                    prompt += `, portant un ${hat.name}`;
+                    if (hat.hasDecoration) {
+                        prompt += ` avec une ${hat.hasDecoration}`;
+                    }
+                    if (hat.doesNotHaveDecoration) {
+                        prompt += ` (sans ${hat.doesNotHaveDecoration})`;
+                    }
+                }
+                prompt += `\n`;
+            }
+            
+            if (bus) {
+                prompt += `- Lieu : dans un autobus\n`;
+            }
+            
+            if (conversation1) {
+                prompt += `- Une conversation au ton ${conversation1.emotionalTone} avec un autre voyageur\n`;
+            }
+            
+            if (seat) {
+                prompt += `- Le jeune homme trouve un ${seat.name.toLowerCase()} et s'y assoit\n`;
+            }
+            
+            if (friend && fastenAction && button) {
+                prompt += `- Plus tard, il rencontre un ami qui lui conseille de faire quelque chose avec le ${button.name} de son pardessus\n`;
+            }
+            
+            prompt += `\nRaconte cette histoire en respectant parfaitement le style ${style} et le genre ${genre}. L'histoire doit faire environ 150-250 mots.\n\nHistoire :`;
+            
+            return prompt;
+        }
+
+        // Template-based fallback generation using JSON data
+        function generateTemplateStory(style, genre, narratorJob) {
+            if (!storyData) {
+                return `Histoire simple : Un ${narratorJob} observe une scène dans un autobus.`;
+            }
+
+            const graph = storyData['@graph'];
+            const youthMan = graph.find(item => item['@id'] === '#youth_man');
+            const conversation1 = graph.find(item => item['@id'] === '#conversation1');
+            const seat = graph.find(item => item['@type'] === 'Seat');
+            const button = graph.find(item => item['@type'] === 'Button');
+            
+            // Extract character details from JSON
+            const ageRange = youthMan?.ageRange || '20-25';
+            const neckDesc = youthMan?.neck ? `${youthMan.neck.name} ${youthMan.neck.height}` : 'long cou';
+            const hatDesc = youthMan?.wearing?.object ? 
+                `${youthMan.wearing.object.name}${youthMan.wearing.object.hasDecoration ? ` avec une ${youthMan.wearing.object.hasDecoration}` : ''}` : 
+                'chapeau avec tresse';
+            const conversationTone = conversation1?.emotionalTone || 'vif';
+            const seatName = seat?.name || 'siège libre';
+            const buttonName = button?.name || 'bouton supérieur';
+
+            const templates = {
+                'romantique': `Ô douce mélancolie de cet après-midi ! En tant que ${narratorJob}, mon cœur fut touché par la vision de ce jeune homme de ${ageRange} ans, au ${neckDesc} gracile, paré d'un ${hatDesc} comme une couronne poétique. Dans cet autobus bondé, théâtre de nos existences éphémères, une conversation au ton ${conversationTone} éclata comme un orage soudain entre lui et un autre voyageur. Puis, tel un oiseau blessé trouvant refuge, il découvrit un ${seatName.toLowerCase()} et s'y posa avec délicatesse. Plus tard, sous les conseils tendres d'un ami bienveillant, il ajusta le ${buttonName} de son pardessus avec la précision d'un poète arrangeant ses vers les plus précieux.`,
+                
+                'realiste': `Mardi, 14h30. Je suis ${narratorJob} et je prends le bus ligne 84. Un jeune homme de ${ageRange} ans environ, remarquable par son ${neckDesc}, porte un ${hatDesc}. Il monte à Saint-Lazare. Une conversation ${conversationTone} éclate avec un passager pour une question de place. Il finit par s'installer sur un ${seatName.toLowerCase()}. À 16h15, même jour, je le vois rue de Rome avec un ami qui examine son pardessus et lui conseille de faire attention au ${buttonName} qui semble mal ajusté.`,
+                
+                'humoristique': `Alors là, en tant que ${narratorJob}, je vous jure que j'ai assisté à un spectacle ! Un phénomène de ${ageRange} ans avec un ${neckDesc} de girafe et un ${hatDesc} complètement farfelu qui se lance dans une discussion ${conversationTone} avec un autre voyageur ! Après sa petite crise de nerfs, monsieur trouve un ${seatName.toLowerCase()} et s'y installe comme un pacha. Et le pompon ? Plus tard, je le recroise avec son copain qui lui fait remarquer : "Dis donc, ton ${buttonName} là, il fait n'importe quoi !" Du grand art !`,
+                
+                'surealiste': `Dans ce bus-aquarium flottant dans l'éther urbain, moi, ${narratorJob} des rêves perdus, j'aperçois un jeune homme de ${ageRange} ans dont le ${neckDesc} s'étire vers les nuages de coton. Son ${hatDesc} danse avec les mots non-dits d'une conversation ${conversationTone} qui transforme les voyageurs en poissons colorés. Il s'assoit sur un ${seatName.toLowerCase()} qui pourrait être un trône ou une simple chaise, selon l'angle de la réalité. Plus tard, un ami-magicien lui murmure des secrets sur le ${buttonName} de son pardessus cosmique.`,
+                
+                'noir': `La ville suintait sous la pluie. Moi, ${narratorJob} de cette jungle urbaine, j'observais ce jeune homme de ${ageRange} ans au ${neckDesc} suspect, coiffé d'un ${hatDesc} qui cachait peut-être plus que ses cheveux. Dans ce bus piège, une conversation ${conversationTone} dégénéra rapidement - on ne discute jamais innocemment dans cette ville. Il trouva refuge sur un ${seatName.toLowerCase()}, mais les prédateurs urbains n'oublient jamais. Plus tard, un soi-disant ami lui glissa quelques mots sur le ${buttonName} de son pardessus. Dans cette ville, même les conseils vestimentaires cachent des secrets.`
+            };
+
+            return templates[style] || templates['realiste'];
+        }
+
+        // Display story
+        function displayStory(story, style, genre) {
+            storyPlaceholder.classList.add('hidden');
+            storyText.classList.remove('hidden');
+            storyText.innerHTML = `
+                <div class="mb-4 pb-4 border-b border-white/20">
+                    <span class="bg-blue-500/30 px-3 py-1 rounded-full text-sm">📖 ${genre.charAt(0).toUpperCase() + genre.slice(1)}</span>
+                    <span class="bg-purple-500/30 px-3 py-1 rounded-full text-sm ml-2">🎨 ${style.charAt(0).toUpperCase() + style.slice(1)}</span>
+                </div>
+                <div class="whitespace-pre-line">${story}</div>
+            `;
+        }
+
+        // Show error
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            storyText.classList.add('hidden');
+        }
+
+        // Hide error
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            if (loading) {
+                generateBtn.disabled = true;
+                btnText.classList.add('hidden');
+                btnLoader.classList.remove('hidden');
+            } else {
+                generateBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        }
+
+        // Event listeners
+        generateBtn.addEventListener('click', generateStory);
+
+        // Enter key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !generateBtn.disabled) {
+                generateStory();
+            }
+        });
+
+        // Initialize the app
+        window.addEventListener('load', () => {
+            console.log('🎭 Générateur d\'Exercice de Style avec IA intégrée');
+            initializeAI();
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,151 @@
+{
+  "@context": "https://schema.org/",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "#author",
+      "name": "Luc Bizeul",
+      "role": "Auteur",
+      "url": "https://www.linkedin.com/in/luc-bizeul/"
+    },
+    {
+      "@type": "myvocab:AgentInstruction",
+      "myvocab:instructionContent": "Demander un style et un genre pour l'histoire"
+    },
+    {
+      "@type": "myvocab:AgentInstruction",
+      "myvocab:instructionContent": "Tenir compte de tous les paramètres de l'histoire" 
+    },
+    {
+      "@type": "myvocab:AgentInstruction",
+      "myvocab:instructionContent": "n'utilise pas les identifiants pour nommer les personnages" 
+    },
+    {
+      "@type": "myvocab:AgentInstruction",
+      "myvocab:instructionContent": "demande le métier du narrateur" 
+    },
+    {
+      "@type": "Person",
+      "@id": "#youth_man",
+      "ageRange": "18-25",
+      "neck": {
+        "@type": "BodyPart",
+        "height": "long",
+        "name": "cou"
+      },
+      "wearing": {
+        "@type": "WearAction",
+        "object": {
+          "@type": "Clothing",
+          "name": "chapeau",
+          "hasDecoration": "tresse",
+          "doesNotHaveDecoration": "ruban"
+        }
+      },
+      "gender": "Male",
+      "location": {
+        "@id": "#Autobus"
+      }
+    },
+    {
+      "@type": "Bus",
+      "@id": "Autobus"
+    },
+    {
+      "@id": "#Narrator",
+      "@type": "Person",
+      "name": "Narrateur IA"
+    },
+    {
+      "@type": "Person",
+      "@id": "#other_traveller",
+      "name": "Autre voyageur"
+    },
+    {
+      "@type": "Conversation",
+      "@id": "#conversation1",
+      "emotionalTone": "vif",
+      "speaker": [
+        {
+          "@id": "#youth_man"
+        },
+        {
+          "@id": "#other_traveller"
+        }
+      ]
+    },
+    {
+      "@type": "Seat",
+      "@id": "#free_seat",
+      "name": "Siège libre"
+    },
+    {
+      "@type": "Encounter",
+      "@id": "#encounter_narrator_youthman",
+      "location": {
+        "@id": "#Autobus"
+      },
+      "about": [
+        {
+          "@id": "#Narrator"
+        },
+        {
+          "@id": "#youth_man"
+        }
+      ]
+    },
+    {
+      "@type": "SitAction",
+      "agent": {
+        "@id": "#youth_man"
+      },
+      "object": {
+        "@id": "#free_seat"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "#friend",
+      "name": "Ami"
+    },
+    {
+      "@type": "Conversation",
+      "@id": "#conversation2", 
+      "speaker": [
+        {
+          "@id": "#youth_man"
+        },
+        {
+          "@id": "#friend"
+        }
+      ]
+    },
+    {
+      "@type": "WearAction",
+      "@id": "#wear_coat", 
+      "agent": {
+        "@id": "#youth_man"
+      },
+      "object": {
+        "@type": "Clothing",
+        "name": "pardessus"
+      }
+    },
+    {
+      "@type": "Button",
+      "name": "bouton supérieur"
+    },
+    {
+      "@type": "FastenAction",
+      "agent": {
+        "@id": "#friend"
+      },
+      "object": {
+        "@id": "#bouton supérieur"
+      },
+      "instrument": {
+        "@id": "#wear_coat"
+      }
+    }
+  ]
+}
